@@ -1,0 +1,42 @@
+<connectorDefinition accessType="editable" label="Receive Text from RabbitMQ" name="rabbitmq-text-in" type="inbound">
+	<description>Receives text from RabbitMQ and converts it to GeoEvents.</description>
+	<defaultName>rabbitmq-text-in</defaultName>
+	<transport uri="com.esri.ges.transport.inbound/RabbitMQ/10.3.0"/>
+	<adapter uri="com.esri.ges.adapter.inbound/Text/10.3.0"/>
+	<properties>
+		<shown>
+			<property default="localhost" label="Host" name="host" source="transport"/>
+			<property default="5672" label="Port" name="port" source="transport"/>
+			<property label="User Name" name="username" source="transport"/>
+			<property label="Password" name="password" source="transport"/>
+			<property default="false" label="SSL" name="ssl" source="transport"/>
+			<property label="RabbitMQ Exchange Name" name="exchangeName" source="transport"/>
+			<property default="direct" label="RabbitMQ Exchange Type" name="exchangeType" source="transport"/>
+			<property default="Transient" label="RabbitMQ Exchange Durability" name="exchangeDurability" source="transport"/>
+			<property default="true" label="RabbitMQ Exchange Auto delete" name="exchangeAutoDelete" source="transport"/>
+			<property label="RabbitMQ Queue Name" name="queueName" source="transport"/>
+			<property default="Transient" label="RabbitMQ Queue Durability" name="queueDurability" source="transport"/>
+			<property default="false" label="RabbitMQ Exclusive Queue" name="queueExclusive" source="transport"/>
+			<property default="true" label="RabbitMQ Queue Auto-delete" name="queueAutoDelete" source="transport"/>
+			<property label="Routing Key" name="routingKey" source="transport"/>
+		</shown>
+		<advanced>
+			<property default="true" label="Create Unrecognized Event Definitions" name="CreateUnrecognizedGeoEventDefinitions" source="adapter"/>
+			<property default="\n" label="Message Separator" name="MessageSeparator" source="adapter"/>
+			<property default="," label="Attribute Separator" name="AttributeSeparator" source="adapter"/>
+			<property default="true" label="Incoming Data Contains GeoEvent Definition" name="IncomingDataContainsGeoEventDefinition" source="adapter"/>
+			<property default="false" label="Create Fixed GeoEvent Definitions" name="CreateFixedGeoEventDefinitions" source="adapter"/>
+			<property label="GeoEvent Definition Name (New)" name="NewFixedGeoEventDefinitionName" source="adapter"/>
+			<property label="GeoEvent Definition Name (Existing)" name="ExistingFixedGeoEventDefinitionName" source="adapter"/>
+			<property default="false" label="Build Geometry From Fields" name="BuildGeometryFromFields" source="adapter"/>
+			<property label="X Geometry Field" name="XGeometryField" source="adapter"/>
+			<property label="Y Geometry Field" name="YGeometryField" source="adapter"/>
+			<property label="Z Geometry Field" name="ZGeometryField" source="adapter"/>
+			<property label="wkid Geometry Field" name="WKIDGeometryField" source="adapter"/>
+			<property label="Well Known Text Geometry Field" name="WKTextGeometryField" source="adapter"/>
+			<property label="Expected Date Format" name="CustomDateFormat" source="adapter"/>
+			<property label="Language for Number Formatting" name="LocaleForNumberFormatter" source="adapter"/>
+		</advanced>
+		<hidden/>
+	</properties>
+</connectorDefinition>
