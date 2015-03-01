@@ -82,6 +82,7 @@ public class RabbitMQInboundTransportDefinition extends TransportDefinitionBase
       propertyDefinitions.put("queueExclusive", new PropertyDefinition("queueExclusive", PropertyType.Boolean, "false", "RabbitMQ Exclusive Queue", "Exclusive Queue is used by only one connection and will be deleted when that connection closes.", true, false));
       propertyDefinitions.put("queueAutoDelete", new PropertyDefinition("queueAutoDelete", PropertyType.Boolean, "true", "RabbitMQ Queue Auto-delete", "If 'true', the queue will delete itself after at least one consumer has connected, and then all consumers have disconnected.", true, false));
 
+      propertyDefinitions.put("prefetchCount", new PropertyDefinition("prefetchCount", PropertyType.Integer, 1, "Quality of Service", "Tell RabbitMQ how many unacknowledged messages each worker can handle at a time.", false, false));
       propertyDefinitions.put("routingKey", new PropertyDefinition("routingKey", PropertyType.String, "", "Routing Key", "Routing Key", false, false));
     }
     catch (PropertyException e)

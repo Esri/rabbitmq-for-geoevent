@@ -10,21 +10,29 @@ public class RabbitMQConsumer extends RabbitMQComponentBase
 	private static final Log					LOGGER	= LogFactory.getLog(RabbitMQConsumer.class);
 	private RabbitMQQueueingConsumer	consumer;
 	private RabbitMQQueue							queue;
+  private int                       prefetchCount;
 
 	public RabbitMQConsumer(RabbitMQConnectionInfo connectionInfo, RabbitMQExchange exchange, RabbitMQQueue queue)
 	{
 		super(connectionInfo, exchange);
 		this.queue = queue;
+    this.prefetchCount = 1;
 	}
+
+  public void setPrefetchCount(int value)
+  {
+    this.prefetchCount = value;
+  }
 
 	@Override
 	protected synchronized void init() throws RabbitMQTransportException
 	{
 		super.init();
 		try
-		{
-			channel.queueDeclare(queue.getName(), queue.isDurable(), queue.isExclusive(), queue.isAutoDelete(), null);
+    {
+      channel.queueDeclare(queue.getName(), queue.isDurable(), queue.isExclusive(), queue.isAutoDelete(), null);
 			channel.queueBind(queue.getName(), exchange.getName(), exchange.getRoutingKey());
+      channel.basicQos(prefetchCount);
 		}
 		catch (IOException e)
 		{

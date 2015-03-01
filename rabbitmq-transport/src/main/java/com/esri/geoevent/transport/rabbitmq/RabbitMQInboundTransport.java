@@ -28,15 +28,16 @@ import java.nio.ByteBuffer;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.esri.ges.core.component.RunningException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.esri.ges.core.component.ComponentException;
+import com.esri.ges.core.component.RunningException;
 import com.esri.ges.core.component.RunningState;
 import com.esri.ges.core.validation.ValidationException;
 import com.esri.ges.transport.InboundTransportBase;
 import com.esri.ges.transport.TransportDefinition;
+import com.esri.ges.util.Converter;
 
 public class RabbitMQInboundTransport extends InboundTransportBase implements Runnable, Observer
 {
@@ -44,6 +45,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 	private RabbitMQConnectionInfo	connectionInfo;
 	private RabbitMQExchange				exchange;
 	private RabbitMQQueue						queue;
+  private int                     prefetchCount;
 	private RabbitMQConsumer				consumer;
 
 	public RabbitMQInboundTransport(TransportDefinition definition) throws ComponentException
@@ -104,8 +106,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 
 	@Override
 	public void afterPropertiesSet()
-	{
-		super.afterPropertiesSet();
+  {
 		String password;
 		try
 		{
@@ -135,6 +136,8 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 				getProperty("queueExclusive").getValueAsString(),
 				getProperty("queueAutoDelete").getValueAsString()
 		);
+    prefetchCount = Converter.convertToInteger(getProperty("prefetchCount").getValueAsString(), 1);
+    super.afterPropertiesSet();
 	}
 
 	@Override
@@ -157,6 +160,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
         consumer = new RabbitMQConsumer(connectionInfo, exchange, queue);
         consumer.addObserver(this);
       }
+      consumer.setPrefetchCount(prefetchCount);
       consumer.connect();
       new Thread(this).start();
 		}
