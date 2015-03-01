@@ -51,6 +51,11 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 		super(definition);
 	}
 
+  public boolean isClusterable()
+  {
+    return true;
+  }
+
 	@Override
 	public void run()
 	{
