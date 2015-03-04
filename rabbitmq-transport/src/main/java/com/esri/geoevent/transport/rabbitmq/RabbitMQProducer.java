@@ -3,12 +3,12 @@ package com.esri.geoevent.transport.rabbitmq;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
 
-public class RabbitMQProducer extends RabbitMQComponentBase
+public class RabbitMQProducer extends RabbitMQConnectionBroker.RabbitMQComponentBase
 {
-	private static final Log LOGGER = LogFactory.getLog(RabbitMQProducer.class);
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQProducer.class);
 
 	public RabbitMQProducer(RabbitMQConnectionInfo connectionInfo, RabbitMQExchange exchange)
 	{
@@ -19,7 +19,7 @@ public class RabbitMQProducer extends RabbitMQComponentBase
 	{
 		if (buffer == null || !buffer.hasRemaining())
 		{
-			String msg = "Nothing to send"; // TODO: ???
+			String msg = LOGGER.translate("TRANSPORT_OUT_NO_MESSAGE_TO_SEND_ERROR");
 			LOGGER.error(msg);
 			throw new RabbitMQTransportException(msg);
 		}
@@ -31,7 +31,7 @@ public class RabbitMQProducer extends RabbitMQComponentBase
 			}
 			catch (IOException e)
 			{
-				String msg = "AMQP_FACTORY_SENT_FAILURE_ERROR"; // TODO: ???
+				String msg = LOGGER.translate("TRANSPORT_OUT_FAILED_TO_SEND_MESSAGE_ERROR");
 				LOGGER.error(msg);
 				throw new RabbitMQTransportException(msg, e);
 			}

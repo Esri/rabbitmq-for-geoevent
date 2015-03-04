@@ -2,11 +2,14 @@ package com.esri.geoevent.transport.rabbitmq;
 
 import com.esri.ges.core.validation.Validatable;
 import com.esri.ges.core.validation.ValidationException;
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
 import com.esri.ges.util.Converter;
 import com.esri.ges.util.Validator;
 
 public class RabbitMQQueue implements Validatable
 {
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQExchange.class);
 	private String							name;
 	private RabbitMQDurability	durability;
 	private boolean							exclusive;
@@ -23,11 +26,6 @@ public class RabbitMQQueue implements Validatable
 	public String getName()
 	{
 		return name;
-	}
-
-	public RabbitMQDurability getDurability()
-	{
-		return durability;
 	}
 
 	public boolean isDurable()
@@ -49,6 +47,6 @@ public class RabbitMQQueue implements Validatable
   public void validate() throws ValidationException
   {
 		if (name == null || name.isEmpty())
-			throw new ValidationException("RabbitMQ queue is invalid: name is not specified.");
+			throw new ValidationException(LOGGER.translate("QUEUE_NAME_VALIDATE_ERROR"));
   }
 }

@@ -2,12 +2,12 @@ package com.esri.geoevent.transport.rabbitmq;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
 
-public class RabbitMQConsumer extends RabbitMQComponentBase
+public class RabbitMQConsumer extends RabbitMQConnectionBroker.RabbitMQComponentBase
 {
-	private static final Log					LOGGER	= LogFactory.getLog(RabbitMQConsumer.class);
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQConsumer.class);
 	private RabbitMQQueueingConsumer	consumer;
 	private RabbitMQQueue							queue;
   private int                       prefetchCount;
@@ -36,8 +36,8 @@ public class RabbitMQConsumer extends RabbitMQComponentBase
 		}
 		catch (IOException e)
 		{
-			String msg = "AMQP_BASE_INIT_ERROR"; // TODO: ????
-			LOGGER.error(msg);
+			String msg = LOGGER.translate("CHANNEL_INIT_ERROR", e.getMessage());
+			LOGGER.error(msg, e);
 			throw new RabbitMQTransportException(msg, e);
 		}
 		try
@@ -47,8 +47,8 @@ public class RabbitMQConsumer extends RabbitMQComponentBase
 		}
 		catch (IOException e)
 		{
-			String msg = "AMQP_FACTORY_CONSUMER_INIT_ERROR"; // TODO: ???
-			LOGGER.error(msg);
+			String msg = LOGGER.translate("CONSUMER_INIT_ERROR", e.getMessage());
+			LOGGER.error(msg, e);
 			throw new RabbitMQTransportException(msg, e);
 		}
 	}
@@ -84,8 +84,7 @@ public class RabbitMQConsumer extends RabbitMQComponentBase
 						}
 						catch (IOException e)
 						{
-							LOGGER.error("AMQP_FACTORY_CONSUMER_SHUTDOWN_CANCEL", e); // TODO: ???
-							LOGGER.error(e.getMessage(), e);
+              LOGGER.error("CONSUMER_CANCEL_ERROR", e.getMessage(), e);
 						}
 						try
 						{
@@ -93,7 +92,7 @@ public class RabbitMQConsumer extends RabbitMQComponentBase
 						}
 						catch (InterruptedException e)
 						{
-							;
+							// ignore
 						}
 						consumer = null;
 					}

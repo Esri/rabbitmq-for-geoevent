@@ -4,15 +4,16 @@ import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.rabbitmq.client.*;
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ShutdownListener;
+import com.rabbitmq.client.ShutdownSignalException;
 
 public abstract class RabbitMQComponentBase extends RabbitMQObservable implements Observer
 {
-	private static final Log					LOGGER		= LogFactory.getLog(RabbitMQComponentBase.class);
-	private RabbitMQConnectionBroker	broker;
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQComponentBase.class);
+  private RabbitMQConnectionBroker	broker;
 	protected RabbitMQExchange				exchange;
 	protected volatile boolean				connected	= false;
 	private String										details		= "";
@@ -47,7 +48,7 @@ public abstract class RabbitMQComponentBase extends RabbitMQObservable implement
 		}
 		catch (IOException e)
 		{
-			String msg = "AMQP_BASE_INIT_ERROR"; // TODO: ???
+			String msg = LOGGER.translate("EXCHANGE_CREATE_ERROR", e.getMessage());
 			LOGGER.error(msg, e);
 			throw new RabbitMQTransportException(msg);
 		}
@@ -76,7 +77,7 @@ public abstract class RabbitMQComponentBase extends RabbitMQObservable implement
     }
     else
     {
-      details = "RabbitMQ connection is broken."; //TODO: ???
+      details = LOGGER.translate("CONNECTION_BROKEN_ERROR", broker.getConnectionInfo().getHost());
       LOGGER.error(details);
       throw new RabbitMQTransportException(details);
     }
@@ -96,7 +97,7 @@ public abstract class RabbitMQComponentBase extends RabbitMQObservable implement
 					}
 					catch (IOException e)
 					{
-						LOGGER.error("AMQP_BASE_SHUTDOWN_CHANNEL_CLOSE", e); // TODO: ???
+						LOGGER.error("CHANNEL_CLOSE_ERROR", e.getMessage(), e);
 					}
 				}
 				channel = null;

@@ -28,20 +28,19 @@ import java.nio.ByteBuffer;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.esri.ges.core.component.ComponentException;
 import com.esri.ges.core.component.RunningException;
 import com.esri.ges.core.component.RunningState;
 import com.esri.ges.core.validation.ValidationException;
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
 import com.esri.ges.transport.InboundTransportBase;
 import com.esri.ges.transport.TransportDefinition;
 import com.esri.ges.util.Converter;
 
 public class RabbitMQInboundTransport extends InboundTransportBase implements Runnable, Observer
 {
-	private static final Log				log	= LogFactory.getLog(RabbitMQInboundTransport.class);
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQInboundTransport.class);
 	private RabbitMQConnectionInfo	connectionInfo;
 	private RabbitMQExchange				exchange;
 	private RabbitMQQueue						queue;
@@ -78,7 +77,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 			}
 			catch (RabbitMQTransportException e)
 			{
-				log.error(e);
+				LOGGER.error("", e);
 			}
 		}
 	}
@@ -207,7 +206,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 					disconnect("");
 					break;
 				case CREATION_FAILED:
-					log.error(event.getDetails());
+					LOGGER.error(event.getDetails());
 					disconnect(event.getDetails());
 					setRunningState(RunningState.ERROR);
 					break;

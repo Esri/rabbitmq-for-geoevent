@@ -24,22 +24,22 @@
 
 package com.esri.geoevent.transport.rabbitmq;
 
-import com.esri.ges.core.component.ComponentException;
-import com.esri.ges.core.component.RunningException;
-import com.esri.ges.core.component.RunningState;
-import com.esri.ges.core.validation.ValidationException;
-import com.esri.ges.transport.OutboundTransportBase;
-import com.esri.ges.transport.TransportDefinition;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.nio.ByteBuffer;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.esri.ges.core.component.ComponentException;
+import com.esri.ges.core.component.RunningException;
+import com.esri.ges.core.component.RunningState;
+import com.esri.ges.core.validation.ValidationException;
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
+import com.esri.ges.transport.OutboundTransportBase;
+import com.esri.ges.transport.TransportDefinition;
+
 public class RabbitMQOutboundTransport extends OutboundTransportBase implements Observer
 {
-	static final private Log					log	= LogFactory.getLog(RabbitMQOutboundTransport.class);
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQOutboundTransport.class);
 	private RabbitMQConnectionInfo    connectionInfo;
 	private RabbitMQExchange					exchange;
 	private RabbitMQProducer          producer;
@@ -173,7 +173,7 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
             connect();
           break;
         case CREATION_FAILED:
-          log.error(event.getDetails());
+          LOGGER.error(event.getDetails());
           disconnect(event.getDetails());
           setRunningState(RunningState.ERROR);
           break;

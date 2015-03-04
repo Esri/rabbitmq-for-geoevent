@@ -1,20 +1,21 @@
 package com.esri.geoevent.transport.rabbitmq;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Observable;
+import java.util.Observer;
 
-import com.rabbitmq.client.*;
 import net.jodah.lyra.ConnectionOptions;
 import net.jodah.lyra.Connections;
 import net.jodah.lyra.config.Config;
 import net.jodah.lyra.config.RecoveryPolicies;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
+import com.rabbitmq.client.*;
 
 public class RabbitMQConnectionBroker extends RabbitMQObservable implements Observer
 {
-	private static final Log						LOGGER = LogFactory.getLog(RabbitMQConnectionBroker.class);
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQConnectionBroker.class);
 	private Connection									connection;
 	private RabbitMQConnectionListener	connectionListener;
 	private RabbitMQChannelListener			channelListener;
@@ -45,12 +46,13 @@ public class RabbitMQConnectionBroker extends RabbitMQObservable implements Obse
 			}
 			catch (IOException e)
 			{
-				String msg = "RabbitMQ connection broker failed to create new channel: " + e.getMessage();
-				LOGGER.error(msg);
-				throw new RabbitMQTransportException(msg, e);
+        String msg = LOGGER.translate("CHANNEL_CREATE_ERROR", e.getMessage());
+        LOGGER.error(msg, e);
+				throw new RabbitMQTransportException(msg);
 			}
 		}
-		String msg = "RabbitMQ connection broker failed to create new channel: connection is broken.";
+    String cause = LOGGER.translate("CONNECTION_BROKEN_ERROR", monitor.connectionInfo.getHost());
+    String msg = LOGGER.translate("CHANNEL_CREATE_ERROR", cause);
 		LOGGER.error(msg);
 		throw new RabbitMQTransportException(msg);
 	}
@@ -75,7 +77,8 @@ public class RabbitMQConnectionBroker extends RabbitMQObservable implements Obse
 			}
 			catch (IOException e)
 			{
-				LOGGER.error("RabbitMQ connection broker failed to close connection on shutdown: " + e.getMessage(), e);
+        String msg = LOGGER.translate("CONNECTION_CLOSE_ERROR", monitor.connectionInfo.getHost(), e.getMessage());
+        LOGGER.error(msg, e);
 			}
 			finally
 			{
@@ -120,18 +123,23 @@ public class RabbitMQConnectionBroker extends RabbitMQObservable implements Obse
 		}
 	}
 
+  public RabbitMQConnectionInfo getConnectionInfo()
+  {
+    return monitor.connectionInfo;
+  }
+
 	private class RabbitMQConnectionMonitor extends RabbitMQObservable implements Runnable
 	{
 		private RabbitMQConnectionInfo 	connectionInfo;
 		private volatile boolean				running    = false;
 		private volatile boolean				errorState = false;
 
-		public RabbitMQConnectionMonitor(RabbitMQConnectionInfo 	connectionInfo)
+		public RabbitMQConnectionMonitor(RabbitMQConnectionInfo	connectionInfo)
 		{
 			this.connectionInfo = connectionInfo;
 		}
 
-		@Override
+    @Override
 		public void run()
 		{
 			running = true;
@@ -159,23 +167,23 @@ public class RabbitMQConnectionBroker extends RabbitMQObservable implements Obse
 							@Override
 							public void shutdownCompleted(ShutdownSignalException cause)
 							{
-								LOGGER.error("Connection to rabbit@" + connectionInfo.getHost() + " broken.");
+								LOGGER.error("CONNECTION_BROKEN_WITH_CAUSE_ERROR", connectionInfo.getHost(), cause.getMessage());
 								notifyObservers(RabbitMQConnectionStatus.DISCONNECTED, cause.getMessage());
 							}
 						});
 						errorState = false;
-						String details = "Connection to rabbit@" + connectionInfo.getHost() + " established.";
-						LOGGER.info(details);
-						notifyObservers(RabbitMQConnectionStatus.CREATED, details);
+            String msg = LOGGER.translate("CONNECTION_ESTABLISH_SUCCESS", connectionInfo.getHost());
+						LOGGER.info(msg);
+						notifyObservers(RabbitMQConnectionStatus.CREATED, msg);
 					}
 					catch (Throwable th)
 					{
 						// only log the error message once
 						if (!errorState)
 						{
-							String details = "Connection to rabbit@" + connectionInfo.getHost() + " cannot be established: " + th.getMessage();
-							LOGGER.error(details, th);
-							notifyObservers(RabbitMQConnectionStatus.CREATION_FAILED, details);
+              String msg = LOGGER.translate("CONNECTION_ESTABLISH_FAILURE", connectionInfo.getHost(), th.getMessage());
+							LOGGER.error(msg, th);
+							notifyObservers(RabbitMQConnectionStatus.CREATION_FAILED, msg);
 							errorState = true;
 						}
 					}
@@ -196,9 +204,126 @@ public class RabbitMQConnectionBroker extends RabbitMQObservable implements Obse
 			}
 		}
 
-		public void stop()
+    public void stop()
 		{
 			running = false;
 		}
 	}
+
+  public abstract static class RabbitMQComponentBase extends RabbitMQObservable implements Observer
+  {
+    private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQComponentBase.class);
+    private RabbitMQConnectionBroker	broker;
+    protected RabbitMQExchange				exchange;
+    protected volatile boolean				connected	= false;
+    private String										details		= "";
+    protected Channel									channel;
+
+    public RabbitMQComponentBase(RabbitMQConnectionInfo connectionInfo, RabbitMQExchange exchange)
+    {
+      broker = new RabbitMQConnectionBroker(connectionInfo);
+      broker.addObserver(this);
+      this.exchange = exchange;
+    }
+
+    protected synchronized void init() throws RabbitMQTransportException
+    {
+      try
+      {
+        channel.addShutdownListener(new ShutdownListener()
+          {
+            @Override
+            public void shutdownCompleted(ShutdownSignalException cause)
+            {
+              disconnect(cause.getMessage());
+            }
+          });
+        channel.exchangeDeclare(
+            exchange.getName(),
+            exchange.getType().toString(),
+            exchange.isDurable(),
+            exchange.isAutoDelete(),
+            null
+        );
+      }
+      catch (IOException e)
+      {
+        String msg = LOGGER.translate("EXCHANGE_CREATE_ERROR", e.getMessage());
+        LOGGER.error(msg, e);
+        throw new RabbitMQTransportException(msg);
+      }
+    }
+
+    public String getStatusDetails()
+    {
+      return details;
+    }
+
+    public boolean isConnected()
+    {
+      return connected;
+    }
+
+    protected synchronized void connect() throws RabbitMQTransportException
+    {
+      disconnect(null);
+      if (broker.isConnected())
+      {
+        if (channel == null)
+          channel = broker.createChannel();
+        init();
+        details = "";
+        connected = true;
+      }
+      else
+      {
+        details = LOGGER.translate("CONNECTION_BROKEN_ERROR");
+        LOGGER.error(details);
+        throw new RabbitMQTransportException(details);
+      }
+    }
+
+    protected synchronized void disconnect(String reason)
+    {
+      if (connected)
+      {
+        if (channel != null)
+        {
+          if (channel.isOpen())
+          {
+            try
+            {
+              channel.close();
+            }
+            catch (IOException e)
+            {
+              String msg = LOGGER.translate("CHANNEL_CLOSE_ERROR", e.getMessage());
+              LOGGER.error(msg, e);
+            }
+          }
+          channel = null;
+        }
+      }
+      connected = false;
+      details = reason;
+    }
+
+    public void shutdown()
+    {
+      disconnect("");
+      broker.deleteObserver(this);
+      broker.shutdown();
+    }
+
+    @SuppressWarnings("incomplete-switch")
+    @Override
+    public void update(Observable observable, Object obj)
+    {
+      if (obj instanceof RabbitMQTransportEvent)
+      {
+        RabbitMQTransportEvent event = (RabbitMQTransportEvent) obj;
+        notifyObservers(event.getStatus(), event.getDetails());
+      }
+    }
+  }
 }
