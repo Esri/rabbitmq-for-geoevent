@@ -80,7 +80,7 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
 	public synchronized void stop()
 	{
 		if (!RunningState.STOPPED.equals(getRunningState()))
-			disconnect("");
+      disconnect("");
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
 		exchange.validate();
 	}
 
-  public synchronized void connect()
+  private synchronized void connect()
   {
     disconnect("");
     setRunningState(RunningState.STARTING);
@@ -141,7 +141,7 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
     }
   }
 
-  public void disconnect(String reason)
+  private synchronized void disconnect(String reason)
 	{
     setRunningState(RunningState.STOPPING);
     if (producer != null)
@@ -155,7 +155,8 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
     if (producer != null)
     {
       producer.deleteObserver(this);
-      producer.shutdown();
+      producer.shutdown("");
+      producer = null;
     }
     super.shutdown();
   }
@@ -169,30 +170,33 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
       switch (event.getStatus())
       {
         case CREATED:
-          if (isRunning())
-            connect();
-          break;
-        case CREATION_FAILED:
-          LOGGER.error(event.getDetails());
-          disconnect(event.getDetails());
-          setRunningState(RunningState.ERROR);
-          break;
         case RECOVERY:
-          if (isRunning())
-            connect();
-          break;
-        case RECOVERY_STARTED:
-          break;
-        case RECOVERY_COMPLETED:
-          break;
-        case RECOVERY_FAILED:
-          disconnect(event.getDetails());
+          try
+          {
+            start();
+          }
+          catch (RunningException e)
+          {
+            ;
+          }
           break;
         case DISCONNECTED:
           disconnect("");
           break;
         case SHUTDOWN:
           shutdown();
+          break;
+        case RECOVERY_FAILED:
+        case CREATION_FAILED:
+          LOGGER.error(event.getDetails());
+          disconnect(event.getDetails());
+          setRunningState(RunningState.ERROR);
+          break;
+        case RECOVERY_STARTED:
+          break;
+        case RECOVERY_COMPLETED:
+          break;
+        default:
           break;
       }
 		}

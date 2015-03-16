@@ -91,36 +91,10 @@ public class RabbitMQConnectionBroker extends RabbitMQObservable implements Obse
 	public void update(Observable observable, Object obj)
 	{
     if (obj instanceof RabbitMQTransportEvent)
-		{
-			RabbitMQTransportEvent event = (RabbitMQTransportEvent) obj;
-			switch (event.getStatus())
-			{
-				case RECOVERY:
-          LOGGER.error(event.getDetails());
-          notifyObservers(event.getStatus(), event.getDetails());
-					break;
-				case RECOVERY_STARTED:
-					break;
-				case RECOVERY_COMPLETED:
-					break;
-				case RECOVERY_FAILED:
-					break;
-				case CREATED:
-					break;
-				case CREATION_FAILED:
-					LOGGER.error(event.getDetails());
-					notifyObservers(event.getStatus(), event.getDetails());
-					break;
-				case DISCONNECTED:
-					LOGGER.info(event.getDetails());
-					notifyObservers(event.getStatus(), event.getDetails());
-					break;
-				case SHUTDOWN:
-					break;
-				default:
-					break;
-			}
-		}
+    {
+      RabbitMQTransportEvent event = (RabbitMQTransportEvent) obj;
+      notifyObservers(event.getStatus(), event.getDetails());
+    }
 	}
 
   public RabbitMQConnectionInfo getConnectionInfo()
@@ -277,7 +251,7 @@ public class RabbitMQConnectionBroker extends RabbitMQObservable implements Obse
       }
       else
       {
-        details = LOGGER.translate("CONNECTION_BROKEN_ERROR");
+        details = LOGGER.translate("CONNECTION_BROKEN_ERROR", broker.monitor.connectionInfo.getHost());
         LOGGER.error(details);
         throw new RabbitMQTransportException(details);
       }
@@ -308,9 +282,9 @@ public class RabbitMQConnectionBroker extends RabbitMQObservable implements Obse
       details = reason;
     }
 
-    public void shutdown()
+    public void shutdown(String reason)
     {
-      disconnect("");
+      disconnect(reason);
       broker.deleteObserver(this);
       broker.shutdown();
     }

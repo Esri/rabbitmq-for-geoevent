@@ -100,7 +100,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 	public synchronized void stop()
 	{
 		if (!RunningState.STOPPED.equals(getRunningState()))
-			disconnect("");
+      disconnect("");
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 		queue.validate();
 	}
 
-	private void connect()
+	private synchronized void connect()
 	{
 		disconnect("");
 		setRunningState(RunningState.STARTING);
@@ -170,13 +170,13 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 		}
 	}
 
-	private void disconnect(String reason)
+	private synchronized void disconnect(String reason)
 	{
-		setRunningState(RunningState.STOPPING);
+    setRunningState(RunningState.STOPPING);
     if (consumer != null)
-		  consumer.disconnect(reason);
-		setErrorMessage(reason);
-		setRunningState(RunningState.STOPPED);
+      consumer.disconnect(reason);
+    setErrorMessage(reason);
+    setRunningState(RunningState.STOPPED);
 	}
 
 	public void shutdown()
@@ -184,7 +184,8 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
     if (consumer != null)
     {
       consumer.deleteObserver(this);
-      consumer.shutdown();
+      consumer.shutdown("");
+      consumer = null;
     }
 		super.shutdown();
 	}
@@ -197,21 +198,35 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 			RabbitMQTransportEvent event = (RabbitMQTransportEvent) obj;
 			switch (event.getStatus())
 			{
-				case RECOVERY:
-				case CREATED:
-					if (isRunning())
-						connect();
-					break;
-				case DISCONNECTED:
-					disconnect("");
-					break;
-				case CREATION_FAILED:
-					LOGGER.error(event.getDetails());
-					disconnect(event.getDetails());
-					setRunningState(RunningState.ERROR);
-					break;
-				default:
-					break;
+        case CREATED:
+        case RECOVERY:
+          try
+          {
+            start();
+          }
+          catch (RunningException e)
+          {
+            ;
+          }
+          break;
+        case DISCONNECTED:
+          disconnect("");
+          break;
+        case SHUTDOWN:
+          shutdown();
+          break;
+        case RECOVERY_FAILED:
+        case CREATION_FAILED:
+          LOGGER.error(event.getDetails());
+          disconnect(event.getDetails());
+          setRunningState(RunningState.ERROR);
+          break;
+        case RECOVERY_STARTED:
+          break;
+        case RECOVERY_COMPLETED:
+          break;
+        default:
+          break;
 			}
 		}
 	}
