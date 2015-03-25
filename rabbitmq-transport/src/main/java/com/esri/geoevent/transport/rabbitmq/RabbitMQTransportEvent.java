@@ -1,42 +1,66 @@
+/*
+  Copyright 1995-2015 Esri
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+  For additional information, contact:
+  Environmental Systems Research Institute, Inc.
+  Attn: Contracts Dept
+  380 New York Street
+  Redlands, California, USA 92373
+
+  email: contracts@esri.com
+*/
+
 package com.esri.geoevent.transport.rabbitmq;
 
 public class RabbitMQTransportEvent
 {
-  private RabbitMQConnectionStatus status;
-  private String details = "";
-  private Object[] args;
+	private RabbitMQConnectionStatus	status;
+	private String										details	= "";
+	private Object[]									args;
 
-  public RabbitMQTransportEvent(RabbitMQConnectionStatus status, String details, Object... args)
-  {
-    this.status = status;
-    this.details = details;
-    this.args = args;
-  }
+	public RabbitMQTransportEvent(RabbitMQConnectionStatus status, String details, Object... args)
+	{
+		this.status = status;
+		this.details = details;
+		this.args = args;
+	}
 
-  public RabbitMQConnectionStatus getStatus()
-  {
-    return status;
-  }
+	public RabbitMQConnectionStatus getStatus()
+	{
+		return status;
+	}
 
-  public String getDetails()
-  {
-    return details;
-  }
+	public String getDetails()
+	{
+		return details;
+	}
 
-  public Object[] getArgs()
-  {
-    return args;
-  }
+	public Object[] getArgs()
+	{
+		return args;
+	}
 
-  @Override
-  public String toString()
-  {
-    StringBuffer sb = new StringBuffer();
-    sb.append("RabbitMQTransportEvent(");
-    sb.append(status);
-    sb.append(", ");
-    sb.append(details);
-    sb.append(")");
-    return sb.toString();
-  }
+	@Override
+	public String toString()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append("RabbitMQTransportEvent(");
+		sb.append(status);
+		sb.append(", ");
+		sb.append(details);
+		sb.append(")");
+		return sb.toString();
+	}
 }

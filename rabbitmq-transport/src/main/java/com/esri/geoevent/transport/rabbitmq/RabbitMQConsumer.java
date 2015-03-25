@@ -1,3 +1,27 @@
+/*
+  Copyright 1995-2015 Esri
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+  For additional information, contact:
+  Environmental Systems Research Institute, Inc.
+  Attn: Contracts Dept
+  380 New York Street
+  Redlands, California, USA 92373
+
+  email: contracts@esri.com
+*/
+
 package com.esri.geoevent.transport.rabbitmq;
 
 import java.io.IOException;
@@ -7,32 +31,32 @@ import com.esri.ges.framework.i18n.BundleLoggerFactory;
 
 public class RabbitMQConsumer extends RabbitMQConnectionBroker.RabbitMQComponentBase
 {
-  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQConsumer.class);
+	private static final BundleLogger	LOGGER	= BundleLoggerFactory.getLogger(RabbitMQConsumer.class);
 	private RabbitMQQueueingConsumer	consumer;
 	private RabbitMQQueue							queue;
-  private int                       prefetchCount;
+	private int												prefetchCount;
 
 	public RabbitMQConsumer(RabbitMQConnectionInfo connectionInfo, RabbitMQExchange exchange, RabbitMQQueue queue)
 	{
 		super(connectionInfo, exchange);
 		this.queue = queue;
-    this.prefetchCount = 1;
+		this.prefetchCount = 1;
 	}
 
-  public void setPrefetchCount(int value)
-  {
-    this.prefetchCount = value;
-  }
+	public void setPrefetchCount(int value)
+	{
+		this.prefetchCount = value;
+	}
 
 	@Override
 	protected synchronized void init() throws RabbitMQTransportException
 	{
 		super.init();
 		try
-    {
-      channel.queueDeclare(queue.getName(), queue.isDurable(), queue.isExclusive(), queue.isAutoDelete(), null);
+		{
+			channel.queueDeclare(queue.getName(), queue.isDurable(), queue.isExclusive(), queue.isAutoDelete(), null);
 			channel.queueBind(queue.getName(), exchange.getName(), exchange.getRoutingKey());
-      channel.basicQos(prefetchCount);
+			channel.basicQos(prefetchCount);
 		}
 		catch (IOException e)
 		{
@@ -84,7 +108,7 @@ public class RabbitMQConsumer extends RabbitMQConnectionBroker.RabbitMQComponent
 						}
 						catch (IOException e)
 						{
-              LOGGER.error("CONSUMER_CANCEL_ERROR", e.getMessage(), e);
+							LOGGER.error("CONSUMER_CANCEL_ERROR", e.getMessage(), e);
 						}
 						try
 						{

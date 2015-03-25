@@ -1,5 +1,5 @@
 /*
-  Copyright 1995-2014 Esri
+  Copyright 1995-2015 Esri
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -28,18 +28,16 @@ import com.esri.ges.core.component.ComponentException;
 import com.esri.ges.transport.Transport;
 import com.esri.ges.transport.TransportServiceBase;
 
-import com.rabbitmq.client.Connection;
-
 public class RabbitMQOutboundTransportService extends TransportServiceBase
 {
-  public RabbitMQOutboundTransportService()
-  {
-    definition = new RabbitMQOutboundTransportDefinition();
-  }
+	public RabbitMQOutboundTransportService()
+	{
+		definition = new RabbitMQOutboundTransportDefinition();
+	}
 
-  @Override
-  public Transport createTransport() throws ComponentException
-  {
-    return new RabbitMQOutboundTransport(definition);
-  }
+	@Override
+	public Transport createTransport() throws ComponentException
+	{
+		return new RabbitMQOutboundTransport(definition);
+	}
 }

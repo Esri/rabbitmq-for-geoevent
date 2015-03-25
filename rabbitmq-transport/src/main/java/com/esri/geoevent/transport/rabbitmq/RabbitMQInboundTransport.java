@@ -1,5 +1,5 @@
 /*
-  Copyright 1995-2013 Esri
+  Copyright 1995-2015 Esri
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
   Redlands, California, USA 92373
 
   email: contracts@esri.com
- */
+*/
 
 package com.esri.geoevent.transport.rabbitmq;
 
@@ -40,22 +40,22 @@ import com.esri.ges.util.Converter;
 
 public class RabbitMQInboundTransport extends InboundTransportBase implements Runnable, Observer
 {
-  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQInboundTransport.class);
-	private RabbitMQConnectionInfo	connectionInfo;
-	private RabbitMQExchange				exchange;
-	private RabbitMQQueue						queue;
-  private int                     prefetchCount;
-	private RabbitMQConsumer				consumer;
+	private static final BundleLogger	LOGGER	= BundleLoggerFactory.getLogger(RabbitMQInboundTransport.class);
+	private RabbitMQConnectionInfo		connectionInfo;
+	private RabbitMQExchange					exchange;
+	private RabbitMQQueue							queue;
+	private int												prefetchCount;
+	private RabbitMQConsumer					consumer;
 
 	public RabbitMQInboundTransport(TransportDefinition definition) throws ComponentException
 	{
 		super(definition);
 	}
 
-  public boolean isClusterable()
-  {
-    return true;
-  }
+	public boolean isClusterable()
+	{
+		return true;
+	}
 
 	@Override
 	public void run()
@@ -88,8 +88,8 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 	{
 		switch (getRunningState())
 		{
-      case STOPPING:
-      case STOPPED:
+			case STOPPING:
+			case STOPPED:
 			case ERROR:
 				connect();
 				break;
@@ -100,12 +100,12 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 	public synchronized void stop()
 	{
 		if (!RunningState.STOPPED.equals(getRunningState()))
-      disconnect("");
+			disconnect("");
 	}
 
 	@Override
 	public void afterPropertiesSet()
-  {
+	{
 		String password;
 		try
 		{
@@ -115,13 +115,13 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 		{
 			password = getProperty("password").getValueAsString();
 		}
-		connectionInfo = new RabbitMQConnectionInfo(
-				getProperty("host").getValueAsString(),
-				getProperty("port").getValueAsString(),
-				getProperty("username").getValueAsString(),
-				password,
-				getProperty("ssl").getValueAsString()
-		);
+
+		String host     = getProperty("host").getValueAsString();
+		String port     = getProperty("port").getValueAsString();
+		String username = getProperty("username").getValueAsString();
+		String ssl      = getProperty("ssl").getValueAsString();
+		connectionInfo = new RabbitMQConnectionInfo(host, port, username, password, ssl);
+
 		exchange = new RabbitMQExchange(
 				getProperty("exchangeName").getValueAsString(),
 				getProperty("exchangeType").getValueAsString(),
@@ -129,14 +129,15 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 				getProperty("exchangeAutoDelete").getValueAsString(),
 				getProperty("routingKey").getValueAsString()
 		);
-		queue = new RabbitMQQueue(
-				getProperty("queueName").getValueAsString(),
-				getProperty("queueDurability").getValueAsString(),
-				getProperty("queueExclusive").getValueAsString(),
-				getProperty("queueAutoDelete").getValueAsString()
-		);
-    prefetchCount = Converter.convertToInteger(getProperty("prefetchCount").getValueAsString(), 1);
-    super.afterPropertiesSet();
+
+		String queueName       = getProperty("queueName").getValueAsString();
+		String queueDurability = getProperty("queueDurability").getValueAsString();
+		String queueExclusive  = getProperty("queueExclusive").getValueAsString();
+		String queueAutoDelete = getProperty("queueAutoDelete").getValueAsString();
+		queue = new RabbitMQQueue(queueName, queueDurability, queueExclusive, queueAutoDelete);
+
+		prefetchCount = Converter.convertToInteger(getProperty("prefetchCount").getValueAsString(), 1);
+		super.afterPropertiesSet();
 	}
 
 	@Override
@@ -153,15 +154,15 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 		disconnect("");
 		setRunningState(RunningState.STARTING);
 		try
-    {
-      if (consumer == null)
-      {
-        consumer = new RabbitMQConsumer(connectionInfo, exchange, queue);
-        consumer.addObserver(this);
-      }
-      consumer.setPrefetchCount(prefetchCount);
-      consumer.connect();
-      new Thread(this).start();
+		{
+			if (consumer == null)
+			{
+				consumer = new RabbitMQConsumer(connectionInfo, exchange, queue);
+				consumer.addObserver(this);
+			}
+			consumer.setPrefetchCount(prefetchCount);
+			consumer.connect();
+			new Thread(this).start();
 		}
 		catch (RabbitMQTransportException e)
 		{
@@ -172,21 +173,21 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 
 	private synchronized void disconnect(String reason)
 	{
-    setRunningState(RunningState.STOPPING);
-    if (consumer != null)
-      consumer.disconnect(reason);
-    setErrorMessage(reason);
-    setRunningState(RunningState.STOPPED);
+		setRunningState(RunningState.STOPPING);
+		if (consumer != null)
+			consumer.disconnect(reason);
+		setErrorMessage(reason);
+		setRunningState(RunningState.STOPPED);
 	}
 
 	public void shutdown()
 	{
-    if (consumer != null)
-    {
-      consumer.deleteObserver(this);
-      consumer.shutdown("");
-      consumer = null;
-    }
+		if (consumer != null)
+		{
+			consumer.deleteObserver(this);
+			consumer.shutdown("");
+			consumer = null;
+		}
 		super.shutdown();
 	}
 
@@ -198,35 +199,35 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 			RabbitMQTransportEvent event = (RabbitMQTransportEvent) obj;
 			switch (event.getStatus())
 			{
-        case CREATED:
-        case RECOVERY:
-          try
-          {
-            start();
-          }
-          catch (RunningException e)
-          {
-            ;
-          }
-          break;
-        case DISCONNECTED:
-          disconnect("");
-          break;
-        case SHUTDOWN:
-          shutdown();
-          break;
-        case RECOVERY_FAILED:
-        case CREATION_FAILED:
-          LOGGER.error(event.getDetails());
-          disconnect(event.getDetails());
-          setRunningState(RunningState.ERROR);
-          break;
-        case RECOVERY_STARTED:
-          break;
-        case RECOVERY_COMPLETED:
-          break;
-        default:
-          break;
+				case CREATED:
+				case RECOVERY:
+					try
+					{
+						start();
+					}
+					catch (RunningException e)
+					{
+						;
+					}
+					break;
+				case DISCONNECTED:
+					disconnect("");
+					break;
+				case SHUTDOWN:
+					shutdown();
+					break;
+				case RECOVERY_FAILED:
+				case CREATION_FAILED:
+					LOGGER.error(event.getDetails());
+					disconnect(event.getDetails());
+					setRunningState(RunningState.ERROR);
+					break;
+				case RECOVERY_STARTED:
+					break;
+				case RECOVERY_COMPLETED:
+					break;
+				default:
+					break;
 			}
 		}
 	}

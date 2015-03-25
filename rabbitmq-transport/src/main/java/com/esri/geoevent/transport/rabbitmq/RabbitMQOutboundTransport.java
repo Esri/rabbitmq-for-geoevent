@@ -1,5 +1,5 @@
 /*
-  Copyright 1995-2013 Esri
+  Copyright 1995-2015 Esri
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
   Redlands, California, USA 92373
 
   email: contracts@esri.com
- */
+*/
 
 package com.esri.geoevent.transport.rabbitmq;
 
@@ -39,10 +39,10 @@ import com.esri.ges.transport.TransportDefinition;
 
 public class RabbitMQOutboundTransport extends OutboundTransportBase implements Observer
 {
-  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQOutboundTransport.class);
-	private RabbitMQConnectionInfo    connectionInfo;
+	private static final BundleLogger	LOGGER	= BundleLoggerFactory.getLogger(RabbitMQOutboundTransport.class);
+	private RabbitMQConnectionInfo		connectionInfo;
 	private RabbitMQExchange					exchange;
-	private RabbitMQProducer          producer;
+	private RabbitMQProducer					producer;
 
 	public RabbitMQOutboundTransport(TransportDefinition definition) throws ComponentException
 	{
@@ -50,29 +50,29 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
 	}
 
 	@Override
-  public synchronized void receive(final ByteBuffer buffer, String channelId)
-  {
-    try
-    {
-      if (producer != null)
-        producer.send(buffer);
-    }
-    catch (RabbitMQTransportException e)
-    {
-      ;
-    }
-  }
+	public synchronized void receive(final ByteBuffer buffer, String channelId)
+	{
+		try
+		{
+			if (producer != null)
+				producer.send(buffer);
+		}
+		catch (RabbitMQTransportException e)
+		{
+			;
+		}
+	}
 
 	@SuppressWarnings("incomplete-switch")
 	public synchronized void start() throws RunningException
 	{
 		switch (getRunningState())
 		{
-      case STOPPING:
-      case STOPPED:
-      case ERROR:
-        connect();
-        break;
+			case STOPPING:
+			case STOPPED:
+			case ERROR:
+				connect();
+				break;
 		}
 	}
 
@@ -80,86 +80,86 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
 	public synchronized void stop()
 	{
 		if (!RunningState.STOPPED.equals(getRunningState()))
-      disconnect("");
+			disconnect("");
 	}
 
 	@Override
 	public void afterPropertiesSet()
 	{
 		super.afterPropertiesSet();
-    String password;
-    try
-    {
-      password = getProperty("password").getDecryptedValue();
-    }
-    catch (Exception e)
-    {
-      password = getProperty("password").getValueAsString();
-    }
-    connectionInfo = new RabbitMQConnectionInfo(
-        getProperty("host").getValueAsString(),
-        getProperty("port").getValueAsString(),
-        getProperty("username").getValueAsString(),
-        password,
-        getProperty("ssl").getValueAsString()
-    );
-    exchange = new RabbitMQExchange(
-        getProperty("exchangeName").getValueAsString(),
-        getProperty("exchangeType").getValueAsString(),
-        getProperty("exchangeDurability").getValueAsString(),
-        getProperty("exchangeAutoDelete").getValueAsString(),
-        getProperty("routingKey").getValueAsString()
-    );
+
+		String password;
+		try
+		{
+			password = getProperty("password").getDecryptedValue();
+		}
+		catch (Exception e)
+		{
+			password = getProperty("password").getValueAsString();
+		}
+
+		String host     = getProperty("host").getValueAsString();
+		String port     = getProperty("port").getValueAsString();
+		String username = getProperty("username").getValueAsString();
+		String ssl      = getProperty("ssl").getValueAsString();
+		connectionInfo = new RabbitMQConnectionInfo(host, port, username, password, ssl);
+
+		String exchangeName       = getProperty("exchangeName").getValueAsString();
+		String exchangeType       = getProperty("exchangeType").getValueAsString();
+		String exchangeDurability = getProperty("exchangeDurability").getValueAsString();
+		String exchangeAutoDelete = getProperty("exchangeAutoDelete").getValueAsString();
+		String routingKey         = getProperty("routingKey").getValueAsString();
+		exchange = new RabbitMQExchange(exchangeName, exchangeType, exchangeDurability, exchangeAutoDelete, routingKey);
 	}
 
 	@Override
 	public void validate() throws ValidationException
 	{
 		super.validate();
-    connectionInfo.validate();
+		connectionInfo.validate();
 		exchange.validate();
 	}
 
-  private synchronized void connect()
-  {
-    disconnect("");
-    setRunningState(RunningState.STARTING);
-    try
-    {
-      if (producer == null)
-      {
-        producer = new RabbitMQProducer(connectionInfo, exchange);
-        producer.addObserver(this);
-      }
-      producer.connect();
-      setRunningState(RunningState.STARTED);
-    }
-    catch (RabbitMQTransportException e)
-    {
-      disconnect(e.getMessage());
-      setRunningState(RunningState.ERROR);
-    }
-  }
-
-  private synchronized void disconnect(String reason)
+	private synchronized void connect()
 	{
-    setRunningState(RunningState.STOPPING);
-    if (producer != null)
-      producer.disconnect(reason);
-		setErrorMessage(reason);
-    setRunningState(RunningState.STOPPED);
+		disconnect("");
+		setRunningState(RunningState.STARTING);
+		try
+		{
+			if (producer == null)
+			{
+				producer = new RabbitMQProducer(connectionInfo, exchange);
+				producer.addObserver(this);
+			}
+			producer.connect();
+			setRunningState(RunningState.STARTED);
+		}
+		catch (RabbitMQTransportException e)
+		{
+			disconnect(e.getMessage());
+			setRunningState(RunningState.ERROR);
+		}
 	}
 
-  public void shutdown()
-  {
-    if (producer != null)
-    {
-      producer.deleteObserver(this);
-      producer.shutdown("");
-      producer = null;
-    }
-    super.shutdown();
-  }
+	private synchronized void disconnect(String reason)
+	{
+		setRunningState(RunningState.STOPPING);
+		if (producer != null)
+			producer.disconnect(reason);
+		setErrorMessage(reason);
+		setRunningState(RunningState.STOPPED);
+	}
+
+	public void shutdown()
+	{
+		if (producer != null)
+		{
+			producer.deleteObserver(this);
+			producer.shutdown("");
+			producer = null;
+		}
+		super.shutdown();
+	}
 
 	@Override
 	public void update(Observable observable, Object obj)
@@ -167,38 +167,38 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
 		if (obj instanceof RabbitMQTransportEvent)
 		{
 			RabbitMQTransportEvent event = (RabbitMQTransportEvent) obj;
-      switch (event.getStatus())
-      {
-        case CREATED:
-        case RECOVERY:
-          try
-          {
-            start();
-          }
-          catch (RunningException e)
-          {
-            ;
-          }
-          break;
-        case DISCONNECTED:
-          disconnect("");
-          break;
-        case SHUTDOWN:
-          shutdown();
-          break;
-        case RECOVERY_FAILED:
-        case CREATION_FAILED:
-          LOGGER.error(event.getDetails());
-          disconnect(event.getDetails());
-          setRunningState(RunningState.ERROR);
-          break;
-        case RECOVERY_STARTED:
-          break;
-        case RECOVERY_COMPLETED:
-          break;
-        default:
-          break;
-      }
+			switch (event.getStatus())
+			{
+				case CREATED:
+				case RECOVERY:
+					try
+					{
+						start();
+					}
+					catch (RunningException e)
+					{
+						;
+					}
+					break;
+				case DISCONNECTED:
+					disconnect("");
+					break;
+				case SHUTDOWN:
+					shutdown();
+					break;
+				case RECOVERY_FAILED:
+				case CREATION_FAILED:
+					LOGGER.error(event.getDetails());
+					disconnect(event.getDetails());
+					setRunningState(RunningState.ERROR);
+					break;
+				case RECOVERY_STARTED:
+					break;
+				case RECOVERY_COMPLETED:
+					break;
+				default:
+					break;
+			}
 		}
 	}
 }
