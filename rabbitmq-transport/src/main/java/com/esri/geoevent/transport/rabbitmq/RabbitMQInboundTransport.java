@@ -60,6 +60,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 	@Override
 	public void run()
 	{
+		setErrorMessage("");
 		setRunningState(RunningState.STARTED);
 		while (isRunning())
 		{
@@ -106,6 +107,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 	@Override
 	public void afterPropertiesSet()
 	{
+		shutdownConsumer();
 		String password;
 		try
 		{
@@ -122,13 +124,12 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 		String ssl      = getProperty("ssl").getValueAsString();
 		connectionInfo = new RabbitMQConnectionInfo(host, port, username, password, ssl);
 
-		exchange = new RabbitMQExchange(
-				getProperty("exchangeName").getValueAsString(),
-				getProperty("exchangeType").getValueAsString(),
-				getProperty("exchangeDurability").getValueAsString(),
-				getProperty("exchangeAutoDelete").getValueAsString(),
-				getProperty("routingKey").getValueAsString()
-		);
+		String exchangeName       = getProperty("exchangeName").getValueAsString();
+		String exchangeType       = getProperty("exchangeType").getValueAsString();
+		String exchangeDurability = getProperty("exchangeDurability").getValueAsString();
+		String exchangeAutoDelete = getProperty("exchangeAutoDelete").getValueAsString();
+		String routingKey         = getProperty("routingKey").getValueAsString();
+		exchange = new RabbitMQExchange(exchangeName, exchangeType, exchangeDurability, exchangeAutoDelete, routingKey);
 
 		String queueName       = getProperty("queueName").getValueAsString();
 		String queueDurability = getProperty("queueDurability").getValueAsString();
@@ -180,7 +181,7 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 		setRunningState(RunningState.STOPPED);
 	}
 
-	public void shutdown()
+	private synchronized void shutdownConsumer()
 	{
 		if (consumer != null)
 		{
@@ -188,6 +189,11 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
 			consumer.shutdown("");
 			consumer = null;
 		}
+	}
+
+	public void shutdown()
+	{
+		shutdownConsumer();
 		super.shutdown();
 	}
 

@@ -87,7 +87,7 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
 	public void afterPropertiesSet()
 	{
 		super.afterPropertiesSet();
-
+		shutdownProducer();
 		String password;
 		try
 		{
@@ -150,7 +150,7 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
 		setRunningState(RunningState.STOPPED);
 	}
 
-	public void shutdown()
+	private synchronized void shutdownProducer()
 	{
 		if (producer != null)
 		{
@@ -158,6 +158,11 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
 			producer.shutdown("");
 			producer = null;
 		}
+	}
+
+	public void shutdown()
+	{
+		shutdownProducer();
 		super.shutdown();
 	}
 

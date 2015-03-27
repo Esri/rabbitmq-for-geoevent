@@ -58,8 +58,6 @@ public class RabbitMQOutboundTransportDefinition extends TransportDefinitionBase
 			List<LabeledValue> exchangeTypeAllowedValues = new ArrayList<LabeledValue>();
 			exchangeTypeAllowedValues.add(new LabeledValue(RabbitMQExchangeType.direct.toString(), RabbitMQExchangeType.direct.toString()));
 			exchangeTypeAllowedValues.add(new LabeledValue(RabbitMQExchangeType.fanout.toString(), RabbitMQExchangeType.fanout.toString()));
-			exchangeTypeAllowedValues.add(new LabeledValue(RabbitMQExchangeType.topic.toString(), RabbitMQExchangeType.topic.toString()));
-			exchangeTypeAllowedValues.add(new LabeledValue(RabbitMQExchangeType.headers.toString(), RabbitMQExchangeType.headers.toString()));
 			propertyDefinitions.put("exchangeType", new PropertyDefinition("exchangeType", PropertyType.String, RabbitMQExchangeType.direct.toString(), "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_TYPE_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_TYPE_DESC}", true, false, exchangeTypeAllowedValues));
 
 			List<LabeledValue> exchangeDurabilityAllowedValues = new ArrayList<LabeledValue>();
