@@ -1,6 +1,6 @@
 # rabbitmq-for-geoevent
 
-ArcGIS GeoEvent Extension Sample RabbitMQ connectors for connecting to RabbitMQ Message Servers.
+ArcGIS GeoEvent Extension sample RabbitMQ connectors for connecting to RabbitMQ message servers.
 
 ![App](rabbitmq-for-geoevent.png?raw=true)
 
@@ -28,8 +28,8 @@ Installing the built jar files:
 
 ## Resources
 
-* [Download the connector's tutorial](http://www.arcgis.com/home/error.html?id=tbd) from the ArcGIS GeoEvent Extension Gallery
-* [ArcGIS GeoEvent Extension for Server Resource Center](http://links.esri.com/geoevent)
+* [Download the connector's tutorial](http://www.arcgis.com/home/item.html?id=b1da75d6f2874c7ba31ef15c6da2e86b) from the ArcGIS GeoEvent Gallery
+* [ArcGIS GeoEvent Extension for Server resources](http://links.esri.com/geoevent)
 * [ArcGIS Blog](http://blogs.esri.com/esri/arcgis/)
 * [twitter@esri](http://twitter.com/esri)
 
