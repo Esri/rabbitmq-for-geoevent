@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.esri.geoevent.parent</groupId>
 	<artifactId>rabbitmq</artifactId>
-	<version>10.3.0</version>
+	<version>10.4.0</version>
 	<packaging>pom</packaging>
 	<name>Esri :: GeoEvent :: RabbitMQ</name>
 	<url>http://www.esri.com</url>
@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>com.esri.geoevent.sdk</groupId>
 			<artifactId>geoevent-sdk</artifactId>
-			<version>10.3.0</version>
+			<version>10.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
