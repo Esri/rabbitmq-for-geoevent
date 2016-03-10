@@ -24,22 +24,17 @@
 
 package com.esri.geoevent.transport.rabbitmq;
 
-import java.io.IOException;
-import java.util.Observable;
-import java.util.Observer;
-
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
+import com.rabbitmq.client.*;
 import net.jodah.lyra.ConnectionOptions;
 import net.jodah.lyra.Connections;
 import net.jodah.lyra.config.Config;
 import net.jodah.lyra.config.RecoveryPolicies;
 
-import com.esri.ges.framework.i18n.BundleLogger;
-import com.esri.ges.framework.i18n.BundleLoggerFactory;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.ShutdownListener;
-import com.rabbitmq.client.ShutdownSignalException;
+import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 
 public class RabbitMQConnectionBroker extends RabbitMQObservable implements Observer
 {
@@ -154,6 +149,8 @@ public class RabbitMQConnectionBroker extends RabbitMQObservable implements Obse
 						ConnectionFactory factory = new ConnectionFactory();
 						factory.setHost(connectionInfo.getHost());
 						factory.setPort(connectionInfo.getPort());
+						if (connectionInfo.getVirtualHost() != null)
+							factory.setVirtualHost(connectionInfo.getVirtualHost());
 						if (connectionInfo.isSsl())
 							factory.useSslProtocol();
 						if (connectionInfo.getUsername() != null && connectionInfo.getPassword() != null)

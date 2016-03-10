@@ -32,17 +32,19 @@ import com.esri.ges.util.Converter;
 
 public class RabbitMQConnectionInfo implements Validatable
 {
-	private static final BundleLogger	LOGGER		= BundleLoggerFactory.getLogger(RabbitMQConnectionInfo.class);
-	private String										host			= "localhost";
-	private int												port			= 5672;
-	private String										username	= null;
-	private String										password	= null;
-	private boolean										ssl				= true;
+	private static final BundleLogger	LOGGER			= BundleLoggerFactory.getLogger(RabbitMQConnectionInfo.class);
+	private String										host				= "localhost";
+	private int												port				= 5672;
+	private String										virtualHost	= null;
+	private String										username		= null;
+	private String										password		= null;
+	private boolean										ssl					= true;
 
-	public RabbitMQConnectionInfo(String host, String port, String username, String password, String ssl)
+	public RabbitMQConnectionInfo(String host, String port, String virtualHost, String username, String password, String ssl)
 	{
 		this.host = host;
 		this.port = Converter.convertToInteger(port, 5672);
+		this.virtualHost = virtualHost;
 		this.username = username;
 		this.password = password;
 		this.ssl = Converter.convertToBoolean(ssl, false);
@@ -56,6 +58,11 @@ public class RabbitMQConnectionInfo implements Validatable
 	public int getPort()
 	{
 		return port;
+	}
+
+	public String getVirtualHost()
+	{
+		return virtualHost;
 	}
 
 	public String getUsername()
