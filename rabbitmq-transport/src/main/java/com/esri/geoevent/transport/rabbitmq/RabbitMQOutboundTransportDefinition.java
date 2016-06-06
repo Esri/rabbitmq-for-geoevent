@@ -24,9 +24,6 @@
 
 package com.esri.geoevent.transport.rabbitmq;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.esri.ges.core.property.LabeledValue;
 import com.esri.ges.core.property.PropertyDefinition;
 import com.esri.ges.core.property.PropertyException;
@@ -35,6 +32,8 @@ import com.esri.ges.framework.i18n.BundleLogger;
 import com.esri.ges.framework.i18n.BundleLoggerFactory;
 import com.esri.ges.transport.TransportDefinitionBase;
 import com.esri.ges.transport.TransportType;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RabbitMQOutboundTransportDefinition extends TransportDefinitionBase
 {
@@ -48,6 +47,7 @@ public class RabbitMQOutboundTransportDefinition extends TransportDefinitionBase
 			// Connection properties
 			propertyDefinitions.put("host", new PropertyDefinition("host", PropertyType.String, "localhost", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_HOST_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_HOST_DESC}", true, false));
 			propertyDefinitions.put("port", new PropertyDefinition("port", PropertyType.Integer, "5672", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PORT_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PORT_DESC}", true, false));
+			propertyDefinitions.put("virtualHost", new PropertyDefinition("virtualHost", PropertyType.String, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_VIRTUAL_HOST_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_VIRTUAL_HOST_DESC}", false, false));
 			propertyDefinitions.put("username", new PropertyDefinition("username", PropertyType.String, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_USERNAME_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_USERNAME_DESC}", false, false));
 			propertyDefinitions.put("password", new PropertyDefinition("password", PropertyType.Password, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PASSWORD_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PASSWORD_DESC}", false, false));
 			propertyDefinitions.put("ssl", new PropertyDefinition("ssl", PropertyType.Boolean, false, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_SSL_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_SSL_DESC}", true, false));

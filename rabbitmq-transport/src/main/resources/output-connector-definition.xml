@@ -7,6 +7,7 @@
 		<shown>
 			<property default="localhost" label="Host" name="host" source="transport"/>
 			<property default="5672" label="Port" name="port" source="transport"/>
+			<property label="Virtual Host" name="virtualHost" source="transport"/>
 			<property label="User Name" name="username" source="transport"/>
 			<property label="Password" name="password" source="transport"/>
 			<property default="false" label="SSL" name="ssl" source="transport"/>

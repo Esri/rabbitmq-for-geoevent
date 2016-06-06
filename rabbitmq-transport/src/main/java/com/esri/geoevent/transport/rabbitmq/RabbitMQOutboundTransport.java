@@ -24,10 +24,6 @@
 
 package com.esri.geoevent.transport.rabbitmq;
 
-import java.nio.ByteBuffer;
-import java.util.Observable;
-import java.util.Observer;
-
 import com.esri.ges.core.component.ComponentException;
 import com.esri.ges.core.component.RunningException;
 import com.esri.ges.core.component.RunningState;
@@ -36,6 +32,9 @@ import com.esri.ges.framework.i18n.BundleLogger;
 import com.esri.ges.framework.i18n.BundleLoggerFactory;
 import com.esri.ges.transport.OutboundTransportBase;
 import com.esri.ges.transport.TransportDefinition;
+import java.nio.ByteBuffer;
+import java.util.Observable;
+import java.util.Observer;
 
 public class RabbitMQOutboundTransport extends OutboundTransportBase implements Observer
 {
@@ -98,11 +97,12 @@ public class RabbitMQOutboundTransport extends OutboundTransportBase implements 
 			password = getProperty("password").getValueAsString();
 		}
 
-		String host     = getProperty("host").getValueAsString();
-		String port     = getProperty("port").getValueAsString();
-		String username = getProperty("username").getValueAsString();
-		String ssl      = getProperty("ssl").getValueAsString();
-		connectionInfo = new RabbitMQConnectionInfo(host, port, username, password, ssl);
+		String host     		= getProperty("host").getValueAsString();
+		String port     		= getProperty("port").getValueAsString();
+		String virtualHost 	= getProperty("virtualHost").getValueAsString();
+		String username 		= getProperty("username").getValueAsString();
+		String ssl      		= getProperty("ssl").getValueAsString();
+		connectionInfo 			= new RabbitMQConnectionInfo(host, port, virtualHost, username, password, ssl);
 
 		String exchangeName       = getProperty("exchangeName").getValueAsString();
 		String exchangeType       = getProperty("exchangeType").getValueAsString();
