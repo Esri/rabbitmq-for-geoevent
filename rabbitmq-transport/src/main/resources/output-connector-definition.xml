@@ -1,7 +1,7 @@
 <connectorDefinition accessType="editable" label="Publish Text to RabbitMQ" name="rabbitmq-text-out" type="outbound">
 	<description>Publishes GeoEvents as text to RabbitMQ.</description>
-	<adapter uri="com.esri.ges.adapter.outbound/Text/10.6.0"/>
-	<transport uri="com.esri.ges.transport.outbound/RabbitMQ/10.6.0"/>
+	<adapter uri="com.esri.ges.adapter.outbound/Text/10.7.0"/>
+	<transport uri="com.esri.ges.transport.outbound/RabbitMQ/10.7.0"/>
 	<defaultName>rabbitmq-text-out</defaultName>
 	<properties>
 		<shown>

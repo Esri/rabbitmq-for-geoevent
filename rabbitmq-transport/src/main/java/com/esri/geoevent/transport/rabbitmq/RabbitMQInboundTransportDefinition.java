@@ -105,7 +105,7 @@ public class RabbitMQInboundTransportDefinition extends TransportDefinitionBase
 	@Override
 	public String getVersion()
 	{
-		return "10.6.0";
+		return "10.7.0";
 	}
 
 	@Override
