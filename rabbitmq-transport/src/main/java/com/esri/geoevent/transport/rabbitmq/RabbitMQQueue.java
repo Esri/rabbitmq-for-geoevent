@@ -33,44 +33,44 @@ import com.esri.ges.util.Validator;
 
 public class RabbitMQQueue implements Validatable
 {
-	private static final BundleLogger	LOGGER	= BundleLoggerFactory.getLogger(RabbitMQExchange.class);
-	private String										name;
-	private RabbitMQDurability				durability;
-	private boolean										exclusive;
-	private boolean										autoDelete;
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQQueue.class);
+  private String                    name;
+  private RabbitMQDurability        durability;
+  private boolean                   exclusive;
+  private boolean                   autoDelete;
 
-	public RabbitMQQueue(String name, String durability, String exclusive, String autoDelete)
-	{
-		this.name = name;
-		this.durability = Validator.valueOfIgnoreCase(RabbitMQDurability.class, durability, RabbitMQDurability.Transient);
-		this.exclusive = Converter.convertToBoolean(exclusive, false);
-		this.autoDelete = Converter.convertToBoolean(autoDelete, true);
-	}
+  public RabbitMQQueue(String name, String durability, String exclusive, String autoDelete)
+  {
+    this.name = name;
+    this.durability = Validator.valueOfIgnoreCase(RabbitMQDurability.class, durability, RabbitMQDurability.Transient);
+    this.exclusive = Converter.convertToBoolean(exclusive, false);
+    this.autoDelete = Converter.convertToBoolean(autoDelete, true);
+  }
 
-	public String getName()
-	{
-		return name;
-	}
+  public String getName()
+  {
+    return name;
+  }
 
-	public boolean isDurable()
-	{
-		return RabbitMQDurability.Durable.equals(durability);
-	}
+  public boolean isDurable()
+  {
+    return RabbitMQDurability.Durable.equals(durability);
+  }
 
-	public boolean isExclusive()
-	{
-		return exclusive;
-	}
+  public boolean isExclusive()
+  {
+    return exclusive;
+  }
 
-	public boolean isAutoDelete()
-	{
-		return autoDelete;
-	}
+  public boolean isAutoDelete()
+  {
+    return autoDelete;
+  }
 
-	@Override
-	public void validate() throws ValidationException
-	{
-		if (name == null || name.isEmpty())
-			throw new ValidationException(LOGGER.translate("QUEUE_NAME_VALIDATE_ERROR"));
-	}
+  @Override
+  public void validate() throws ValidationException
+  {
+    if (name == null || name.isEmpty())
+      throw new ValidationException(LOGGER.translate("QUEUE_NAME_VALIDATE_ERROR"));
+  }
 }
