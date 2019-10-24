@@ -25,19 +25,24 @@
 package com.esri.geoevent.transport.rabbitmq;
 
 import com.esri.ges.core.component.ComponentException;
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
 import com.esri.ges.transport.Transport;
 import com.esri.ges.transport.TransportServiceBase;
 
 public class RabbitMQInboundTransportService extends TransportServiceBase
 {
-	public RabbitMQInboundTransportService()
-	{
-		definition = new RabbitMQInboundTransportDefinition();
-	}
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQInboundTransport.class);
 
-	@Override
-	public Transport createTransport() throws ComponentException
-	{
-		return new RabbitMQInboundTransport(definition);
-	}
+  public RabbitMQInboundTransportService()
+  {
+    definition = new RabbitMQInboundTransportDefinition();
+    LOGGER.info("Succesfully created RabbitMQ Inbound Transport Service");
+  }
+
+  @Override
+  public Transport createTransport() throws ComponentException
+  {
+    return new RabbitMQInboundTransport(definition);
+  }
 }

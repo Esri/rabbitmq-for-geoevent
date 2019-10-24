@@ -1,30 +1,30 @@
 <connectorDefinition accessType="editable" label="Publish Text to RabbitMQ" name="rabbitmq-text-out" type="outbound">
-	<description>Publishes GeoEvents as text to RabbitMQ.</description>
-	<adapter uri="com.esri.ges.adapter.outbound/Text/10.6.0"/>
-	<transport uri="com.esri.ges.transport.outbound/RabbitMQ/10.6.0"/>
-	<defaultName>rabbitmq-text-out</defaultName>
-	<properties>
-		<shown>
-			<property default="localhost" label="Host" name="host" source="transport"/>
-			<property default="5672" label="Port" name="port" source="transport"/>
-			<property label="Virtual Host" name="virtualHost" source="transport"/>
-			<property label="User Name" name="username" source="transport"/>
-			<property label="Password" name="password" source="transport"/>
-			<property default="false" label="SSL" name="ssl" source="transport"/>
-			<property label="RabbitMQ Exchange Name" name="exchangeName" source="transport"/>
-			<property default="direct" label="RabbitMQ Exchange Type" name="exchangeType" source="transport"/>
-			<property default="Transient" label="RabbitMQ Exchange Durability" name="exchangeDurability" source="transport"/>
-			<property default="true" label="RabbitMQ Exchange Auto delete" name="exchangeAutoDelete" source="transport"/>
-			<property label="Routing Key" name="routingKey" source="transport"/>
-		</shown>
-		<advanced>
-			<property default="\n" label="Message Separator" name="MessageSeparator" source="adapter"/>
-			<property default="," label="Attribute Separator" name="AttributeSeparator" source="adapter"/>
-			<property default="text/plain" label="MIME Type" name="mimeType" source="adapter"/>
-			<property default="ISO 8601 Format" label="Output Date Format" name="CustomDateFormatType" source="adapter"/>
-			<property label="Custom Date Format" name="CustomDateFormat" source="adapter"/>
-			<property label="Language for Number Formatting" name="LocaleForNumberFormatter" source="adapter"/>
-		</advanced>
-		<hidden/>
-	</properties>
+  <description>Publishes GeoEvents as text to RabbitMQ.</description>
+  <adapter uri="com.esri.ges.adapter.outbound/Text/10.4.0" />
+  <transport uri="com.esri.ges.transport.outbound/RabbitMQ/10.4.0" />
+  <defaultName>rabbitmq-text-out</defaultName>
+  <properties>
+    <shown>
+      <property default="localhost" label="Host" name="host" source="transport" />
+      <property default="5672" label="Port" name="port" source="transport" />
+      <property label="Virtual Host" name="virtualHost" source="transport" />
+      <property label="User Name" name="username" source="transport" />
+      <property label="Password" name="password" source="transport" />
+      <property default="false" label="SSL" name="ssl" source="transport" />
+      <property label="RabbitMQ Exchange Name" name="exchangeName" source="transport" />
+      <property default="direct" label="RabbitMQ Exchange Type" name="exchangeType" source="transport" />
+      <property default="Transient" label="RabbitMQ Exchange Durability" name="exchangeDurability" source="transport" />
+      <property default="true" label="RabbitMQ Exchange Auto delete" name="exchangeAutoDelete" source="transport" />
+      <property label="Routing Key" name="routingKey" source="transport" />
+    </shown>
+    <advanced>
+      <property default="\n" label="Message Separator" name="MessageSeparator" source="adapter" />
+      <property default="," label="Attribute Separator" name="AttributeSeparator" source="adapter" />
+      <property default="text/plain" label="MIME Type" name="mimeType" source="adapter" />
+      <property default="ISO 8601 Format" label="Output Date Format" name="CustomDateFormatType" source="adapter" />
+      <property label="Custom Date Format" name="CustomDateFormat" source="adapter" />
+      <property label="Language for Number Formatting" name="LocaleForNumberFormatter" source="adapter" />
+    </advanced>
+    <hidden />
+  </properties>
 </connectorDefinition>

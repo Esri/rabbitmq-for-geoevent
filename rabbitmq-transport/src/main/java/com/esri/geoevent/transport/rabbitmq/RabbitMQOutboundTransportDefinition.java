@@ -38,72 +38,66 @@ import java.util.List;
 
 public class RabbitMQOutboundTransportDefinition extends TransportDefinitionBase
 {
-	private static final BundleLogger	LOGGER	= BundleLoggerFactory.getLogger(RabbitMQOutboundTransportDefinition.class);
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQOutboundTransport.class);
 
-	public RabbitMQOutboundTransportDefinition()
-	{
-		super(TransportType.OUTBOUND);
-		try
-		{
-			// Connection properties
-			propertyDefinitions.put("host", new PropertyDefinition("host", PropertyType.String, "localhost", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_HOST_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_HOST_DESC}", true, false));
-			propertyDefinitions.put("port", new PropertyDefinition("port", PropertyType.Integer, "5672", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PORT_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PORT_DESC}", true, false));
-			propertyDefinitions.put("virtualHost", new PropertyDefinition("virtualHost", PropertyType.String, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_VIRTUAL_HOST_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_VIRTUAL_HOST_DESC}", false, false));
-			propertyDefinitions.put("username", new PropertyDefinition("username", PropertyType.String, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_USERNAME_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_USERNAME_DESC}", false, false));
-			propertyDefinitions.put("password", new PropertyDefinition("password", PropertyType.Password, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PASSWORD_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PASSWORD_DESC}", false, false));
-			propertyDefinitions.put("ssl", new PropertyDefinition("ssl", PropertyType.Boolean, false, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_SSL_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_SSL_DESC}", true, false));
+  public RabbitMQOutboundTransportDefinition()
+  {
+    super(TransportType.OUTBOUND);
+    try
+    {
+      // Connection properties
+      propertyDefinitions.put("host", new PropertyDefinition("host", PropertyType.String, "localhost", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_HOST_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_HOST_DESC}", true, false));
+      propertyDefinitions.put("port", new PropertyDefinition("port", PropertyType.Integer, "5672", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PORT_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PORT_DESC}", true, false));
+      propertyDefinitions.put("virtualHost", new PropertyDefinition("virtualHost", PropertyType.String, "/", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_VIRTUAL_HOST_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_VIRTUAL_HOST_DESC}", false, false));
+      propertyDefinitions.put("username", new PropertyDefinition("username", PropertyType.String, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_USERNAME_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_USERNAME_DESC}", false, false));
+      propertyDefinitions.put("password", new PropertyDefinition("password", PropertyType.Password, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PASSWORD_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_PASSWORD_DESC}", false, false));
+      propertyDefinitions.put("ssl", new PropertyDefinition("ssl", PropertyType.Boolean, false, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_SSL_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_SSL_DESC}", true, false));
 
-			// Exchange properties
-			propertyDefinitions.put("exchangeName", new PropertyDefinition("exchangeName", PropertyType.String, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_NAME_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_NAME_DESC}", true, false));
+      // Exchange properties
+      propertyDefinitions.put("exchangeName", new PropertyDefinition("exchangeName", PropertyType.String, null, "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_NAME_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_NAME_DESC}", true, false));
 
-			List<LabeledValue> exchangeTypeAllowedValues = new ArrayList<LabeledValue>();
-			exchangeTypeAllowedValues.add(new LabeledValue(RabbitMQExchangeType.direct.toString(), RabbitMQExchangeType.direct.toString()));
-			exchangeTypeAllowedValues.add(new LabeledValue(RabbitMQExchangeType.fanout.toString(), RabbitMQExchangeType.fanout.toString()));
-			propertyDefinitions.put("exchangeType", new PropertyDefinition("exchangeType", PropertyType.String, RabbitMQExchangeType.direct.toString(), "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_TYPE_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_TYPE_DESC}", true, false, exchangeTypeAllowedValues));
+      List<LabeledValue> exchangeTypeAllowedValues = new ArrayList<LabeledValue>();
+      exchangeTypeAllowedValues.add(new LabeledValue(RabbitMQExchangeType.direct.toString(), RabbitMQExchangeType.direct.toString()));
+      exchangeTypeAllowedValues.add(new LabeledValue(RabbitMQExchangeType.fanout.toString(), RabbitMQExchangeType.fanout.toString()));
+      propertyDefinitions.put("exchangeType", new PropertyDefinition("exchangeType", PropertyType.String, RabbitMQExchangeType.direct.toString(), "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_TYPE_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_TYPE_DESC}", true, false, exchangeTypeAllowedValues));
 
-			List<LabeledValue> exchangeDurabilityAllowedValues = new ArrayList<LabeledValue>();
-			exchangeDurabilityAllowedValues.add(new LabeledValue(RabbitMQDurability.Transient.toString(), RabbitMQDurability.Transient.toString()));
-			exchangeDurabilityAllowedValues.add(new LabeledValue(RabbitMQDurability.Durable.toString(), RabbitMQDurability.Durable.toString()));
-			propertyDefinitions.put("exchangeDurability", new PropertyDefinition("exchangeDurability", PropertyType.String, RabbitMQDurability.Transient.toString(), "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_DURABILITY_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_DURABILITY_DESC}", true, false, exchangeDurabilityAllowedValues));
+      List<LabeledValue> exchangeDurabilityAllowedValues = new ArrayList<LabeledValue>();
+      exchangeDurabilityAllowedValues.add(new LabeledValue(RabbitMQDurability.Transient.toString(), RabbitMQDurability.Transient.toString()));
+      exchangeDurabilityAllowedValues.add(new LabeledValue(RabbitMQDurability.Durable.toString(), RabbitMQDurability.Durable.toString()));
+      propertyDefinitions.put("exchangeDurability", new PropertyDefinition("exchangeDurability", PropertyType.String, RabbitMQDurability.Transient.toString(), "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_DURABILITY_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_DURABILITY_DESC}", true, false, exchangeDurabilityAllowedValues));
 
-			propertyDefinitions.put("exchangeAutoDelete", new PropertyDefinition("exchangeAutoDelete", PropertyType.Boolean, "true", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_AUTO_DELETE_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_AUTO_DELETE_DESC}", true, false));
-			propertyDefinitions.put("routingKey", new PropertyDefinition("routingKey", PropertyType.String, "", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_OUT_ROUTING_KEY_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_OUT_ROUTING_KEY_DESC}", false, false));
-		}
-		catch (PropertyException e)
-		{
-			String errorMsg = LOGGER.translate("TRANSPORT_OUT_INIT_ERROR", e.getMessage());
-			LOGGER.error(errorMsg, e);
-			throw new RuntimeException(errorMsg, e);
-		}
-	}
+      propertyDefinitions.put("exchangeAutoDelete", new PropertyDefinition("exchangeAutoDelete", PropertyType.Boolean, "true", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_AUTO_DELETE_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_EXCHANGE_AUTO_DELETE_DESC}", true, false));
+      propertyDefinitions.put("routingKey", new PropertyDefinition("routingKey", PropertyType.String, "", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_OUT_ROUTING_KEY_LBL}", "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_OUT_ROUTING_KEY_DESC}", false, false));
+    }
+    catch (PropertyException e)
+    {
+      String errorMsg = LOGGER.translate("TRANSPORT_OUT_INIT_ERROR", e.getMessage());
+      LOGGER.error(errorMsg, e);
+      throw new RuntimeException(errorMsg, e);
+    }
+  }
 
-	@Override
-	public String getName()
-	{
-		return "RabbitMQ";
-	}
+  @Override
+  public String getName()
+  {
+    return "RabbitMQ";
+  }
 
-	@Override
-	public String getDomain()
-	{
-		return "com.esri.geoevent.transport.outbound";
-	}
+  @Override
+  public String getDomain()
+  {
+    return "com.esri.geoevent.transport.outbound";
+  }
 
-	@Override
-	public String getVersion()
-	{
-		return "10.6.0";
-	}
+  @Override
+  public String getLabel()
+  {
+    return "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_OUT_LABEL}";
+  }
 
-	@Override
-	public String getLabel()
-	{
-		return "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_OUT_LABEL}";
-	}
-
-	@Override
-	public String getDescription()
-	{
-		return "${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_OUT_DESC}";
-	}
+  @Override
+  public String getDescription()
+  {
+    return "Release ${com.esri.geoevent.transport.rabbitmq-transport.PROJECT_RELEASE}: ${com.esri.geoevent.transport.rabbitmq-transport.TRANSPORT_OUT_DESC}";
+  }
 }

@@ -46,7 +46,7 @@ public class RabbitMQConnectionInfo implements Validatable
 		this.port = Converter.convertToInteger(port, 5672);
 		this.virtualHost = virtualHost;
 		this.username = username;
-		this.password = password;
+    this.password = password;
 		this.ssl = Converter.convertToBoolean(ssl, false);
 	}
 

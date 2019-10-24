@@ -40,202 +40,204 @@ import java.util.Observer;
 
 public class RabbitMQInboundTransport extends InboundTransportBase implements Runnable, Observer
 {
-	private static final BundleLogger	LOGGER	= BundleLoggerFactory.getLogger(RabbitMQInboundTransport.class);
-	private RabbitMQConnectionInfo		connectionInfo;
-	private RabbitMQExchange					exchange;
-	private RabbitMQQueue							queue;
-	private int												prefetchCount;
-	private RabbitMQConsumer					consumer;
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQInboundTransport.class);
+  private RabbitMQConnectionInfo    connectionInfo;
+  private RabbitMQExchange          exchange;
+  private RabbitMQQueue             queue;
+  private int                       prefetchCount;
+  private RabbitMQConsumer          consumer;
 
-	public RabbitMQInboundTransport(TransportDefinition definition) throws ComponentException
-	{
-		super(definition);
-	}
+  public RabbitMQInboundTransport(TransportDefinition definition) throws ComponentException
+  {
+    super(definition);
+  }
 
-	public boolean isClusterable()
-	{
-		return true;
-	}
+  public boolean isClusterable()
+  {
+    return true;
+  }
 
-	@Override
-	public void run()
-	{
-		setErrorMessage("");
-		setRunningState(RunningState.STARTED);
-		while (isRunning())
-		{
-			try
-			{
-				byte[] bytes = consumer.receive();
-				if (bytes != null && bytes.length > 0)
-				{
-					ByteBuffer bb = ByteBuffer.allocate(bytes.length);
-					bb.put(bytes);
-					bb.flip();
-					byteListener.receive(bb, "");
-					bb.clear();
-				}
-			}
-			catch (RabbitMQTransportException e)
-			{
-				LOGGER.error("", e);
-			}
-		}
-	}
+  @Override
+  public void run()
+  {
+    setErrorMessage("");
+    setRunningState(RunningState.STARTED);
+    while (isRunning())
+    {
+      try
+      {
+        byte[] bytes = consumer.receive();
+        if (bytes != null && bytes.length > 0)
+        {
+          ByteBuffer bb = ByteBuffer.allocate(bytes.length);
+          bb.put(bytes);
+          bb.flip();
+          byteListener.receive(bb, "");
+          bb.clear();
+        }
+      }
+      catch (RabbitMQTransportException e)
+      {
+        LOGGER.error("", e);
+      }
+    }
+  }
 
-	@SuppressWarnings("incomplete-switch")
-	@Override
-	public synchronized void start() throws RunningException
-	{
-		switch (getRunningState())
-		{
-			case STOPPING:
-			case STOPPED:
-			case ERROR:
-				connect();
-				break;
-		}
-	}
+  @SuppressWarnings("incomplete-switch")
+  @Override
+  public synchronized void start() throws RunningException
+  {
+    switch (getRunningState())
+    {
+      case STOPPING:
+      case STOPPED:
+      case ERROR:
+        connect();
+        break;
+    }
+  }
 
-	@Override
-	public synchronized void stop()
-	{
-		if (!RunningState.STOPPED.equals(getRunningState()))
-			disconnect("");
-	}
+  @Override
+  public synchronized void stop()
+  {
+    if (!RunningState.STOPPED.equals(getRunningState()))
+      disconnect("");
+  }
 
-	@Override
-	public void afterPropertiesSet()
-	{
-		shutdownConsumer();
-		String password;
-		try
-		{
-			password = getProperty("password").getDecryptedValue();
-		}
-		catch (Exception e)
-		{
-			password = getProperty("password").getValueAsString();
-		}
+  @Override
+  public void afterPropertiesSet()
+  {
+    shutdownConsumer();
+    String password;
+    try
+    {
+      password = getProperty("password").getDecryptedValue();
+    }
+    catch (Exception e)
+    {
+      password = getProperty("password").getValueAsString();
+    }
 
-		String host     		= getProperty("host").getValueAsString();
-		String port     		= getProperty("port").getValueAsString();
-		String virtualHost 	= getProperty("virtualHost").getValueAsString();
-		String username 		= getProperty("username").getValueAsString();
-		String ssl      		= getProperty("ssl").getValueAsString();
-		connectionInfo 			= new RabbitMQConnectionInfo(host, port, virtualHost, username, password, ssl);
+    String host = getProperty("host").getValueAsString();
+    String port = getProperty("port").getValueAsString();
+    String virtualHost = getProperty("virtualHost").getValueAsString();
+    if (virtualHost == null || virtualHost.trim().isEmpty())
+      virtualHost = "/";
+    String username = getProperty("username").getValueAsString();
+    String ssl = getProperty("ssl").getValueAsString();
+    connectionInfo = new RabbitMQConnectionInfo(host, port, virtualHost, username, password, ssl);
 
-		String exchangeName       = getProperty("exchangeName").getValueAsString();
-		String exchangeType       = getProperty("exchangeType").getValueAsString();
-		String exchangeDurability = getProperty("exchangeDurability").getValueAsString();
-		String exchangeAutoDelete = getProperty("exchangeAutoDelete").getValueAsString();
-		String routingKey         = getProperty("routingKey").getValueAsString();
-		exchange = new RabbitMQExchange(exchangeName, exchangeType, exchangeDurability, exchangeAutoDelete, routingKey);
+    String exchangeName = getProperty("exchangeName").getValueAsString();
+    String exchangeType = getProperty("exchangeType").getValueAsString();
+    String exchangeDurability = getProperty("exchangeDurability").getValueAsString();
+    String exchangeAutoDelete = getProperty("exchangeAutoDelete").getValueAsString();
+    String routingKey = getProperty("routingKey").getValueAsString();
+    exchange = new RabbitMQExchange(exchangeName, exchangeType, exchangeDurability, exchangeAutoDelete, routingKey);
 
-		String queueName       = getProperty("queueName").getValueAsString();
-		String queueDurability = getProperty("queueDurability").getValueAsString();
-		String queueExclusive  = getProperty("queueExclusive").getValueAsString();
-		String queueAutoDelete = getProperty("queueAutoDelete").getValueAsString();
-		queue = new RabbitMQQueue(queueName, queueDurability, queueExclusive, queueAutoDelete);
+    String queueName = getProperty("queueName").getValueAsString();
+    String queueDurability = getProperty("queueDurability").getValueAsString();
+    String queueExclusive = getProperty("queueExclusive").getValueAsString();
+    String queueAutoDelete = getProperty("queueAutoDelete").getValueAsString();
+    queue = new RabbitMQQueue(queueName, queueDurability, queueExclusive, queueAutoDelete);
 
-		prefetchCount = Converter.convertToInteger(getProperty("prefetchCount").getValueAsString(), 1);
-		super.afterPropertiesSet();
-	}
+    prefetchCount = Converter.convertToInteger(getProperty("prefetchCount").getValueAsString(), 1);
+    super.afterPropertiesSet();
+  }
 
-	@Override
-	public void validate() throws ValidationException
-	{
-		super.validate();
-		connectionInfo.validate();
-		exchange.validate();
-		queue.validate();
-	}
+  @Override
+  public void validate() throws ValidationException
+  {
+    super.validate();
+    connectionInfo.validate();
+    exchange.validate();
+    queue.validate();
+  }
 
-	private synchronized void connect()
-	{
-		disconnect("");
-		setRunningState(RunningState.STARTING);
-		try
-		{
-			if (consumer == null)
-			{
-				consumer = new RabbitMQConsumer(connectionInfo, exchange, queue);
-				consumer.addObserver(this);
-			}
-			consumer.setPrefetchCount(prefetchCount);
-			consumer.connect();
-			new Thread(this).start();
-		}
-		catch (RabbitMQTransportException e)
-		{
-			disconnect(e.getMessage());
-			setRunningState(RunningState.ERROR);
-		}
-	}
+  private synchronized void connect()
+  {
+    disconnect("");
+    setRunningState(RunningState.STARTING);
+    try
+    {
+      if (consumer == null)
+      {
+        consumer = new RabbitMQConsumer(connectionInfo, exchange, queue);
+        consumer.addObserver(this);
+      }
+      consumer.setPrefetchCount(prefetchCount);
+      consumer.connect();
+      new Thread(this).start();
+    }
+    catch (RabbitMQTransportException e)
+    {
+      disconnect(e.getMessage());
+      setRunningState(RunningState.ERROR);
+    }
+  }
 
-	private synchronized void disconnect(String reason)
-	{
-		setRunningState(RunningState.STOPPING);
-		if (consumer != null)
-			consumer.disconnect(reason);
-		setErrorMessage(reason);
-		setRunningState(RunningState.STOPPED);
-	}
+  private synchronized void disconnect(String reason)
+  {
+    setRunningState(RunningState.STOPPING);
+    if (consumer != null)
+      consumer.disconnect(reason);
+    setErrorMessage(reason);
+    setRunningState(RunningState.STOPPED);
+  }
 
-	private synchronized void shutdownConsumer()
-	{
-		if (consumer != null)
-		{
-			consumer.deleteObserver(this);
-			consumer.shutdown("");
-			consumer = null;
-		}
-	}
+  private synchronized void shutdownConsumer()
+  {
+    if (consumer != null)
+    {
+      consumer.deleteObserver(this);
+      consumer.shutdown("");
+      consumer = null;
+    }
+  }
 
-	public void shutdown()
-	{
-		shutdownConsumer();
-		super.shutdown();
-	}
+  public void shutdown()
+  {
+    shutdownConsumer();
+    super.shutdown();
+  }
 
-	@Override
-	public void update(Observable observable, Object obj)
-	{
-		if (obj instanceof RabbitMQTransportEvent)
-		{
-			RabbitMQTransportEvent event = (RabbitMQTransportEvent) obj;
-			switch (event.getStatus())
-			{
-				case CREATED:
-				case RECOVERY:
-					try
-					{
-						start();
-					}
-					catch (RunningException e)
-					{
-						;
-					}
-					break;
-				case DISCONNECTED:
-					disconnect("");
-					break;
-				case SHUTDOWN:
-					shutdown();
-					break;
-				case RECOVERY_FAILED:
-				case CREATION_FAILED:
-					LOGGER.error(event.getDetails());
-					disconnect(event.getDetails());
-					setRunningState(RunningState.ERROR);
-					break;
-				case RECOVERY_STARTED:
-					break;
-				case RECOVERY_COMPLETED:
-					break;
-				default:
-					break;
-			}
-		}
-	}
+  @Override
+  public void update(Observable observable, Object obj)
+  {
+    if (obj instanceof RabbitMQTransportEvent)
+    {
+      RabbitMQTransportEvent event = (RabbitMQTransportEvent) obj;
+      switch (event.getStatus())
+      {
+        case CREATED:
+        case RECOVERY:
+          try
+          {
+            start();
+          }
+          catch (RunningException e)
+          {
+            ;
+          }
+          break;
+        case DISCONNECTED:
+          disconnect("");
+          break;
+        case SHUTDOWN:
+          shutdown();
+          break;
+        case RECOVERY_FAILED:
+        case CREATION_FAILED:
+          LOGGER.error(event.getDetails());
+          disconnect(event.getDetails());
+          setRunningState(RunningState.ERROR);
+          break;
+        case RECOVERY_STARTED:
+          break;
+        case RECOVERY_COMPLETED:
+          break;
+        default:
+          break;
+      }
+    }
+  }
 }

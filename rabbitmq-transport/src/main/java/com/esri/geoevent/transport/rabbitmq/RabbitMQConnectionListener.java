@@ -32,42 +32,56 @@ import com.rabbitmq.client.Connection;
 
 public class RabbitMQConnectionListener extends RabbitMQObservable implements ConnectionListener
 {
-	private static final BundleLogger	LOGGER	= BundleLoggerFactory.getLogger(RabbitMQConnectionListener.class);
+  private static final BundleLogger LOGGER = BundleLoggerFactory.getLogger(RabbitMQConnectionListener.class);
 
-	@Override
-	public void onCreate(Connection connection)
-	{
-		notifyObservers(RabbitMQConnectionStatus.CREATED, LOGGER.translate("CONNECTION_ESTABLISH_SUCCESS", connection.getAddress().getCanonicalHostName()), connection);
-	}
+  private RabbitMQConnectionInfo    connectionInfo;
 
-	@Override
-	public void onCreateFailure(Throwable failure)
-	{
-		notifyObservers(RabbitMQConnectionStatus.CREATION_FAILED, LOGGER.translate("CONNECTION_ESTABLISH_FAILURE", "", failure.getMessage()));
-	}
+  public RabbitMQConnectionListener(RabbitMQConnectionInfo connectionInfo)
+  {
+    this.connectionInfo = connectionInfo;
+  }
 
-	@Override
-	public void onRecovery(Connection connection)
-	{
+  @Override
+  public void onCreate(Connection connection)
+  {
+    notifyObservers(RabbitMQConnectionStatus.CREATED, LOGGER.translate("CONNECTION_ESTABLISH_SUCCESS", connection.getAddress().getCanonicalHostName()), connection);
+  }
 
-		notifyObservers(RabbitMQConnectionStatus.RECOVERY, LOGGER.translate("CONNECTION_RECOVERED", connection.getAddress().getCanonicalHostName()), connection);
-	}
+  @Override
+  public void onCreateFailure(Throwable failure)
+  {
+    String msg = "Unknown Error";
+    if (failure != null)
+    {
+      String failureMsg = failure.getMessage();
+      if (failureMsg == null || failureMsg.trim().isEmpty())
+        msg = failure.toString();
+    }
+    notifyObservers(RabbitMQConnectionStatus.CREATION_FAILED, LOGGER.translate("CONNECTION_ESTABLISH_FAILURE", (connectionInfo != null ? connectionInfo.getHost() : "UnknownHost"), msg));
+  }
 
-	@Override
-	public void onRecoveryStarted(Connection connection)
-	{
-		notifyObservers(RabbitMQConnectionStatus.RECOVERY_STARTED, LOGGER.translate("CONNECTION_RECOVERY_STARTED", connection.getAddress().getCanonicalHostName()), connection);
-	}
+  @Override
+  public void onRecovery(Connection connection)
+  {
 
-	@Override
-	public void onRecoveryCompleted(Connection connection)
-	{
-		notifyObservers(new RabbitMQTransportEvent(RabbitMQConnectionStatus.RECOVERY_COMPLETED, LOGGER.translate("CONNECTION_RECOVERY_COMPLETED", connection.getAddress().getCanonicalHostName()), connection));
-	}
+    notifyObservers(RabbitMQConnectionStatus.RECOVERY, LOGGER.translate("CONNECTION_RECOVERED", connection.getAddress().getCanonicalHostName()), connection);
+  }
 
-	@Override
-	public void onRecoveryFailure(Connection connection, Throwable failure)
-	{
-		notifyObservers(RabbitMQConnectionStatus.RECOVERY_FAILED, LOGGER.translate("CONNECTION_RECOVERY_FAILED", connection.getAddress().getCanonicalHostName(), failure.getMessage()), connection);
-	}
+  @Override
+  public void onRecoveryStarted(Connection connection)
+  {
+    notifyObservers(RabbitMQConnectionStatus.RECOVERY_STARTED, LOGGER.translate("CONNECTION_RECOVERY_STARTED", connection.getAddress().getCanonicalHostName()), connection);
+  }
+
+  @Override
+  public void onRecoveryCompleted(Connection connection)
+  {
+    notifyObservers(new RabbitMQTransportEvent(RabbitMQConnectionStatus.RECOVERY_COMPLETED, LOGGER.translate("CONNECTION_RECOVERY_COMPLETED", connection.getAddress().getCanonicalHostName()), connection));
+  }
+
+  @Override
+  public void onRecoveryFailure(Connection connection, Throwable failure)
+  {
+    notifyObservers(RabbitMQConnectionStatus.RECOVERY_FAILED, LOGGER.translate("CONNECTION_RECOVERY_FAILED", connection.getAddress().getCanonicalHostName(), failure.getMessage()), connection);
+  }
 }
