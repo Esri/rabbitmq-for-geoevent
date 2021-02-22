@@ -71,12 +71,12 @@ public class RabbitMQInboundTransport extends InboundTransportBase implements Ru
         {
           ByteBuffer bb = ByteBuffer.allocate(bytes.length);
           bb.put(bytes);
-          bb.flip();
+          ((java.nio.Buffer) bb).flip();
           byteListener.receive(bb, "");
-          bb.clear();
+          ((java.nio.Buffer) bb).clear();
         }
       }
-      catch (RabbitMQTransportException e)
+      catch (Exception e)
       {
         LOGGER.error("", e);
       }
